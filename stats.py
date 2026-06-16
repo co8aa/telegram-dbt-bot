@@ -1,23 +1,26 @@
-from aiogram import types
+from aiogram import Router, F
+from aiogram.types import Message
 from models.user import get_diary_entries, get_week_stats
 from utils.keyboards import main_kb
 
+router = Router()
 
-async def show_stats(message: types.Message):
-    user_id = message.from_user.id
-    entries = get_diary_entries(user_id, limit=5)
-    week = get_week_stats(user_id)
+
+@router.message(F.text == "📊 Статистика")
+async def show_stats(message: Message):
+    uid     = message.from_user.id
+    entries = get_diary_entries(uid, limit=5)
+    week    = get_week_stats(uid)
 
     if not entries:
         await message.answer(
-            "📊 *Статистика*\n\nУ тебя пока нет записей в дневнике.\n"
-            "Начни отслеживать эмоции через раздел *📝 Дневник*.",
+            "📊 *Статистика*\n\nЗаписей пока нет.\nНачни с раздела *📝 Дневник*.",
             parse_mode="Markdown",
             reply_markup=main_kb(),
         )
         return
 
-    lines = ["📊 *Твои последние записи:*\n"]
+    lines = ["📊 *Последние записи:*\n"]
     for row in entries:
         ts = row["timestamp"][:10]
         lines.append(f"• {ts} — *{row['emotion']}* ({row['intensity']}/10): _{row['situation']}_")
