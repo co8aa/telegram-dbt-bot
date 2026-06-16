@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: dbt-telegram-bot
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python bot.py
+    envVars:
+      - key: BOT_TOKEN
+        sync: false          # задаётся вручную в панели Render
+      - key: WEBHOOK_URL
+        fromService:
+          type: web
+          name: dbt-telegram-bot
+          property: host     # Render подставит https://dbt-telegram-bot.onrender.com
+      - key: PORT
+        value: "10000"       # Render требует порт 10000
