@@ -1,45 +1,42 @@
-from aiogram import types
-from aiogram.dispatcher import FSMContext
+from aiogram import Router, F
+from aiogram.types import Message
 from utils.keyboards import main_kb
 
-CRISIS_TEXT = """
-🆘 *Кризисная поддержка*
+router = Router()
 
-Если тебе сейчас очень тяжело — ты не один(а). Есть люди, которые готовы помочь.
+CRISIS_TEXT = (
+    "🆘 *Кризисная поддержка*\n\n"
+    "Если тебе сейчас очень тяжело — ты не один(а).\n\n"
+    "📞 *Телефоны доверия:*\n"
+    "• Россия (бесплатно): *8\\-800\\-2000\\-122*\n"
+    "• Экстренная помощь: *112*\n"
+    "• Международный: befrienders\\.org\n\n"
+    "━━━━━━━━━━━━━━━━\n"
+    "🧊 *Прямо сейчас — техника TIPP:*\n\n"
+    "*1\\. Холодная вода* — умойся ледяной водой 30 секунд\\.\n"
+    "*2\\. Движение* — 20 приседаний или отжиманий\\.\n"
+    "*3\\. Дыхание 4\\-7\\-8* — вдох 4 сек → задержка 7 → выдох 8\\. Повтори 3 раза\\.\n"
+    "*4\\. Расслабление* — напряги всё тело на 5 сек, потом отпусти\\.\n\n"
+    "Ты справляешься\\. 💙"
+)
 
-📞 *Телефоны доверия:*
-• Россия (бесплатно): *8-800-2000-122*
-• Экстренная психологическая помощь: *112*
-• Международный: *https://www.befrienders.org*
-
-━━━━━━━━━━━━━━━━
-🧊 *Прямо сейчас — техника TIPP:*
-
-*1. Холодная вода* — умойся ледяной водой или подержи руки под холодной струёй 30 секунд. Это активирует парасимпатическую нервную систему.
-
-*2. Интенсивное движение* — 20 приседаний, отжимания, быстрая ходьба. Сброс адреналина.
-
-*3. Дыхание 4-7-8* — вдох 4 сек → задержка 7 сек → выдох 8 сек. Повтори 3 раза.
-
-*4. Мышечное расслабление* — напряги всё тело на 5 секунд, потом полностью расслабь.
-
-━━━━━━━━━━━━━━━━
-Ты справляешься. 💙
-"""
-
-
-async def show_crisis(message: types.Message):
-    await message.answer(CRISIS_TEXT, parse_mode="Markdown", reply_markup=main_kb())
-
-
-# Автоматическое определение по ключевым словам
 CRISIS_KEYWORDS = {
     "хочу умереть", "не хочу жить", "нет смысла",
-    "суицид", "убить себя", "конец всему", "помогите",
-    "кризис", "не могу больше",
+    "суицид", "убить себя", "конец всему",
+    "кризис", "помогите", "не могу больше",
 }
 
 
-def is_crisis_message(text: str) -> bool:
-    text_lower = text.lower()
-    return any(kw in text_lower for kw in CRISIS_KEYWORDS)
+def is_crisis(text: str) -> bool:
+    t = text.lower()
+    return any(kw in t for kw in CRISIS_KEYWORDS)
+
+
+@router.message(F.text == "🆘 Кризис")
+async def show_crisis(message: Message):
+    await message.answer(CRISIS_TEXT, parse_mode="MarkdownV2", reply_markup=main_kb())
+
+
+@router.message(F.text.func(lambda t: t and is_crisis(t)))
+async def auto_crisis(message: Message):
+    await message.answer(CRISIS_TEXT, parse_mode="MarkdownV2", reply_markup=main_kb())
