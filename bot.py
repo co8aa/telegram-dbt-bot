@@ -7,7 +7,7 @@ if _dir not in sys.path:
 import asyncio
 import logging
 from aiohttp import web
-from aiogram import Bot, Dispatcher
+from aiogram import Bot, Dispatcher, F
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import Message
 from aiogram.webhook.aiohttp_server import SimpleRequestHandler, setup_application
@@ -22,10 +22,11 @@ logger = logging.getLogger(__name__)
 
 def build_dp() -> Dispatcher:
     dp = Dispatcher(storage=MemoryStorage())
-    dp.include_router(crisis.router)
+    # start идёт первым — чтобы /start не перехватывался другими
     dp.include_router(start.router)
     dp.include_router(skills.router)
     dp.include_router(diary.router)
+    dp.include_router(crisis.router)
     dp.include_router(stats.router)
 
     @dp.message()
