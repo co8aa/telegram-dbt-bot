@@ -209,14 +209,14 @@ def exercises_kb(ex_keys):
     for key in ex_keys:
         ex = EXERCISES.get(key)
         if ex:
-            b.button(text=ex["title"], callback_data=f"ex_{key}_0")
+            b.button(text=ex["title"], callback_data=f"ex_{key}|0")
     b.button(text="◀️ Назад к навыкам", callback_data="back_skills")
     b.adjust(1)
     return b.as_markup()
 
 def next_btn(ex_key, step):
     b = InlineKeyboardBuilder()
-    b.button(text="➡️ Далее", callback_data=f"ex_{ex_key}_{step}")
+    b.button(text="➡️ Далее", callback_data=f"ex_{ex_key}|{step}")
     return b.as_markup()
 
 def done_btn():
@@ -276,9 +276,9 @@ async def back_skills(cb: CallbackQuery):
 
 @dp.callback_query(F.data.startswith("ex_"))
 async def exercise_step(cb: CallbackQuery):
-    parts    = cb.data.split("_", 2)
-    key      = parts[1]
-    step     = int(parts[2])
+    parts = cb.data[3:].rsplit("|", 1)
+    key  = parts[0]
+    step = int(parts[1])
     exercise = EXERCISES.get(key)
     if not exercise:
         return await cb.answer("Не найдено")
