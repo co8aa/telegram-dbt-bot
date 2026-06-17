@@ -20,7 +20,7 @@ CRISIS_TEXT = (
 CRISIS_KEYWORDS = {
     "хочу умереть", "не хочу жить", "нет смысла",
     "суицид", "убить себя", "конец всему",
-    "кризис", "помогите", "не могу больше",
+    "помогите", "не могу больше",
 }
 
 def is_crisis(text: str) -> bool:
@@ -29,8 +29,4 @@ def is_crisis(text: str) -> bool:
 
 @router.message(F.text == "🆘 Кризис")
 async def show_crisis(message: Message):
-    await message.answer(CRISIS_TEXT, reply_markup=main_kb())
-
-@router.message(F.func(lambda m: m.text and is_crisis(m.text)))
-async def auto_crisis(message: Message):
     await message.answer(CRISIS_TEXT, reply_markup=main_kb())
