@@ -382,15 +382,18 @@ async def stats(message: Message):
 async def fallback(message: Message):
     await message.answer("Воспользуйся кнопками меню или нажми /start 👇", reply_markup=main_kb())
 
-# ── Запуск ────────────────────────────────────────────────────────────────────
+
+# ── Запуск ───────────────────────────────────────
 async def main():
     init_db()
     bot = Bot(token=BOT_TOKEN)
+
     if WEBHOOK_URL:
         wh = f"{WEBHOOK_URL}/webhook/{BOT_TOKEN}"
         await bot.set_webhook(wh)
-        logger.info(f"Webhook: {wh}")
-         app = web.Application()
+        logger.info("Webhook configured")
+
+        app = web.Application()
 
         async def health(request):
             return web.Response(text="OK")
@@ -398,16 +401,26 @@ async def main():
         app.router.add_get("/health", health)
 
         SimpleRequestHandler(
-            dispatcher=dp, bot=bot
-        ).register(app, path=f"/webhook/{BOT_TOKEN}")
+            dispatcher=dp,
+            bot=bot
+        ).register(
+            app,
+            path=f"/webhook/{BOT_TOKEN}"
+        )
 
         setup_application(app, dp, bot=bot)
+
         runner = web.AppRunner(app)
         await runner.setup()
-        await web.TCPSite(runner, "0.0.0.0", PORT).start()
+        await web.TCPSite(
+            runner, "0.0.0.0", PORT
+        ).start()
+
         await asyncio.Event().wait()
+
     else:
         await dp.start_polling(bot)
+
 
 if __name__ == "__main__":
     asyncio.run(main())
