@@ -391,6 +391,10 @@ async def main():
         await bot.set_webhook(wh)
         logger.info(f"Webhook: {wh}")
         app = web.Application()
+        async def health(request):
+    return web.Response(text="OK")
+
+app.router.add_get("/health", health)
         SimpleRequestHandler(dispatcher=dp, bot=bot).register(app, path=f"/webhook/{BOT_TOKEN}")
         setup_application(app, dp, bot=bot)
         runner = web.AppRunner(app)
